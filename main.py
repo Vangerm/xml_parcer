@@ -1,9 +1,6 @@
 import xml.etree.ElementTree as ET
 import csv
 
-tree = ET.parse('Формирование_наборов.xml')
-root = tree.getroot()
-
 
 def indent(elem, level=0):
     '''создает красивый xml c отступами'''
@@ -23,19 +20,25 @@ def indent(elem, level=0):
 
 
 def app_cis():
+    flag_first_chek = True
     with open('1.csv', encoding='utf-8') as f:
         lines = csv.reader(f)
         for line in lines:
             new_item = ET.Element('cis')
-            new_item.text = line[0].strip()
+            if flag_first_chek:
+                new_item.text = line[0].strip()[1:]
+                flag_first_chek = False
+            else:
+                new_item.text = line[0].strip()
             root[0][1].insert(1, new_item)
     return None
 
 
-for elem in root.iter():
-    if elem.tag == 'pack_code':
-        for _ in range(1):
-            app_cis()
+if __name__ == '__main__':
+    tree = ET.parse('Формирование_наборов.xml')
+    root = tree.getroot()
 
-indent(root)
-tree.write('output.xml', encoding="utf-8", xml_declaration=True)
+    app_cis()
+
+    indent(root)
+    tree.write('output.xml', encoding="utf-8", xml_declaration=True)
