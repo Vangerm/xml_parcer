@@ -10,8 +10,5 @@
             </Address>
             <contacts phone_number="123456789" email="22@mail.ru" />
         </organisation>
-        <pack_content>
-            <pack_code><![CDATA[000000000000000000]]></pack_code>
-        </pack_content>
     </Document>
 </unit_pack>
