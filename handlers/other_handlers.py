@@ -1,11 +1,12 @@
-from aiogram.types import Message
 import xml.etree.ElementTree as ET
 import csv
+from config_data.config import load_config
+from aiogram import Router, F
+from aiogram.types import Message, FSInputFile
 
 
-@dp.message()
-async def send_done_xml(message: Message):
-    await message.answer(text=message.chat.id)
+router = Router()
+admin_ids = load_config().tg_bot.admin_ids
 
 
 def indent(elem, level: int = 0) -> None:
@@ -25,9 +26,9 @@ def indent(elem, level: int = 0) -> None:
             elem.tail = i
 
 
-def csv_dict() -> dict:
+def csv_dict(csv_file_name: str = 'input') -> dict:
     result = {}
-    with open('input.csv', encoding='utf-8') as f:
+    with open(f'{csv_file_name}.csv', encoding='utf-8') as f:
         csv_file = csv.DictReader(f, delimiter=',')
         for item in csv_file:
             result.setdefault(item['set'], []).append(item['code'])
@@ -50,11 +51,22 @@ def app_cis(elem) -> None:
             elem[0][-1].append(cis_item)
 
 
-def start():
-    tree = ET.parse('Формирование_наборов.xml')
+@router.message(F.document and F.from_user.id.in_(admin_ids))
+async def send_done_xml(message: Message):
+    file_id = message.document.file_id
+    file = await message.bot.get_file(file_id)
+    file_path = file.file_path
+
+    await message.bot.download_file(file_path, 'input.csv')
+
+    tree = ET.parse('input.xml')
     root = tree.getroot()
 
     app_cis(root)
 
     indent(root)
     tree.write('output.xml', encoding="utf-8", xml_declaration=True)
+
+    done_file = FSInputFile('output.xml')
+
+    await message.answer_document(done_file)
