@@ -51,13 +51,13 @@ def app_cis(elem) -> None:
             elem[0][-1].append(cis_item)
 
 
-@router.message(F.document and F.from_user.id.in_(admin_ids))
+@router.message(F.document, F.from_user.id.in_(admin_ids))
 async def send_done_xml(message: Message):
     file_id = message.document.file_id
     file = await message.bot.get_file(file_id)
     file_path = file.file_path
 
-    await message.bot.download_file(file_path, 'input.csv')
+    await message.bot.download_file(file_path, message.document.file_name)
 
     tree = ET.parse('input.xml')
     root = tree.getroot()
@@ -70,3 +70,9 @@ async def send_done_xml(message: Message):
     done_file = FSInputFile('output.xml')
 
     await message.answer_document(done_file)
+
+
+@router.message()
+async def send_no_admin(message: Message):
+    await message.answer(text='Не смогу вам помочь.\n'
+                         f'Прошу, твой id: {str(message.chat.id)}')

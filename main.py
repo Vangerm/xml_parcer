@@ -10,7 +10,6 @@ async def main() -> None:
     config: Config = load_config()
 
     bot: Bot = Bot(token=config.tg_bot.token)
-    admin_ids = config.tg_bot.admin_ids
     dp: Dispatcher = Dispatcher()
 
     dp.include_router(user_handlers.router)
