@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import csv
+from filters.admin_filter import IsAdmin
 from config_data.config import load_config
 from aiogram import Router, F
 from aiogram.types import Message, FSInputFile
@@ -27,7 +28,7 @@ def indent(elem, level: int = 0) -> None:
 
 
 def csv_dict(csv_file_name: str = 'input') -> dict:
-    result = {}
+    result: dict = {}
     with open(f'{csv_file_name}.csv', encoding='utf-8') as f:
         csv_file = csv.DictReader(f, delimiter=',')
         for item in csv_file:
@@ -51,7 +52,7 @@ def app_cis(elem) -> None:
             elem[0][-1].append(cis_item)
 
 
-@router.message(F.document, F.from_user.id.in_(admin_ids))
+@router.message(F.document, IsAdmin())
 async def send_done_xml(message: Message):
     file_id = message.document.file_id
     file = await message.bot.get_file(file_id)

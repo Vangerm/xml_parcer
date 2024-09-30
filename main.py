@@ -1,5 +1,4 @@
 import asyncio
-
 from aiogram import Bot, Dispatcher
 from config_data.config import Config, load_config
 from handlers import user_handlers, other_handlers
@@ -11,6 +10,8 @@ async def main() -> None:
 
     bot: Bot = Bot(token=config.tg_bot.token)
     dp: Dispatcher = Dispatcher()
+
+    dp['admin_ids'] = config.tg_bot.admin_ids
 
     dp.include_router(user_handlers.router)
     dp.include_router(other_handlers.router)
